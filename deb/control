@@ -1,0 +1,11 @@
+Source: ma-agent
+Maintainer: Mingqi Shao <shaomq@monitorat.com>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 7)
+
+Package: ma-agent 
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Client agent for Monitor At

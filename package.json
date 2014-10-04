@@ -1,0 +1,19 @@
+{
+  "name": "ma-agent",
+  "description": "agent of Monitor@",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "async": "*",
+    "underscore": "*",
+    "hoconfig-js": "*",
+    "moment": "*",
+    "verror": "*",
+    "log4js": "*",
+    "xregexp": "*",
+    "dirty" : "*",
+    "tail-forever" : "*",
+    "is-running" : "*",
+    "commander" : "*"
+  }
+}

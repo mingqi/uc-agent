@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+### BEGIN INIT INFO
+# Provides:          ma-agent
+# Required-Start:    $network $local_fs $remote_fs
+# Required-Stop:     $remote_fs
+# Should-Start:      $named
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: The Monitor At agent
+# Description:       The Monitor At agent
+### END INIT INFO
+
+# Source function library.
+. /lib/lsb/init-functions
+
+prog="ma-agent"
+ma_agent=/opt/ma-agent/bin/ma-agent
+
+RETVAL=0
+start() {
+	# Set Max number of file descriptors for the safety sake
+	# see http://docs.fluentd.org/en/articles/before-install
+	echo -n "Starting $prog: "
+	$ma_agent start -s
+	RETVAL=$?
+	if [[ ! "$RETVAL" -eq 0 ]]; then
+		echo "please see more detail information in /var/log/ma-agent.log"
+	fi	
+	log_end_msg $RETVAL
+}
+
+stop() {
+	echo -n "Shutting down $prog: "
+	$ma_agent stop
+	RETVAL=$?
+	if [[ ! "$RETVAL" -eq 0 ]]; then
+		echo "please see more detail information in /var/log/ma-agent.log"
+	fi	
+	log_end_msg $RETVAL
+}
+
+restart() {
+	stop
+	start
+}
+
+
+
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    restart)
+	restart
+	;;
+    reload)
+	reload
+	;;
+    condrestart)
+	[ -f /var/lock/subsys/$prog ] && restart || :
+	;;
+    configtest)
+        configtest
+        ;;
+    status)
+		status_of_proc $ma_agent $prog && exit 0 || exit $?
+	;;
+    *)
+	echo "Usage: $prog {start|stop|restart|status}"
+	exit 1
+	;;
+esac
+exit $?
