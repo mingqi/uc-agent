@@ -3,12 +3,12 @@ path = require 'path'
 fs = require 'fs'
 us = require 'underscore'
 log4js = require 'log4js'
-
-engine = require '../engine'
-config = require '../config'
+logcola = require 'logcola'
 hoconfig = require 'hoconfig-js'
-stdout = require '../plugin/out_stdout'
-host = require '../plugin/in_host'
+uuid = require 'uuid'
+
+Engine = require '../engine'
+config = require '../config'
 supervisor = require '../supervisor'
 version = require '../version'
 util = require '../util'
@@ -25,9 +25,15 @@ _readLicenseKey = (license_key_file) ->
 
   content = fs.readFileSync(license_key_file, {encoding: "utf8"})
   return content.trim()
+
+_readAgentId = (agent_id_file) ->
+  if not fs.existsSync agent_id_file
+    fs.writeFileSync( agent_id_file, uuid.v4() )
+  fs.readFileSync(agent_id_file, {encoding: "utf8"}).trim()
   
 
 _runEngine = (options, callback) -> 
+  ###
   remote_config = (callback) ->
     config.remote({
       host: options.remote_host, 
@@ -36,53 +42,94 @@ _runEngine = (options, callback) ->
       }, callback)
 
   remote_backup_config = (callback) ->
-    config.backup
+    config.backup(
       remote_config,
       path.join(options.run_directory, 'remote_backup_config.json')
       callback
+    )
+  ###
 
-  # local = (callback) ->
-  #   config.local('/etc/ma-agent/monitor.d', callback)
+  local = (callback) ->
+    config.local(options.log_config_file, callback)
 
   # merged_config = (callback) ->
   #   config.merge(remote_backup_config, local, callback)
   
-  input_plugins = []  
-  agent = Agent(
-    remote_backup_config,
-    input_plugins, 
-    [
-      ['test', stdout()]
-    ]
+  input_plugins = [
+    {
+      type: 'uc_status'
+      interval: options.status_interval_seconds
+      agent_id: options.agent_id
+    }
+  ]  
+
+  output_plugins = [
+    us.extend({
+      match: 'log'
+      type: 'uc_upload'
+      host: options.remote.host
+      port: options.remote.port
+      uri: '/log'
+    }, options.buffer),   
+    {
+      match: 'status'
+      type: 'uc_upload'
+      host: options.remote.host
+      port: options.remote.port
+      uri: '/status'
+      buffer_type: 'memory'
+      buffer_flush: 1
+      buffer_size: 1000
+      retry_times: 1
+      retry_interval: 1
+      buffer_queue_size: 1
+      concurrency: 1
+    }
+  ]
+
+  logcola.plugin.setPluginPath( path.join( __dirname, '../plugin' ) )
+
+  engine = Engine(
+    {
+      configer: local 
+      inputs:  input_plugins.map logcola.plugin
+      outputs : output_plugins.map (c) -> [c.match, logcola.plugin(c)]
+      config_refresh_second: options.config_refresh_second
+    },
+    options.tail
   )
 
-  agent.start (err) ->
+  engine.start (err) ->
     return callback(err) if err
-    callback(null, agent)   
+    logger.info "logcola engine started"
+    callback(null, engine)   
   
 
 _worker = (options) ->
   ## this is child run
-  _runEngine , options, (err, agent) ->
+  _runEngine options, (err, engine) ->
     if err
       logger.error err.stack
       process.exit(1) 
 
-    supervisor.checkHeartbeat(3000)
+    hb_interval = supervisor.checkHeartbeat(3000)
 
     process.on 'SIGTERM', () ->
-      agent.shutdown (err) ->
+      clearInterval hb_interval
+      engine.shutdown (err) ->
         logger.error err.stack if err
         process.exit()
 
      process.on 'SIGINT', () ->
-      agent.shutdown (err) ->
+      clearInterval hb_interval
+      engine.shutdown (err) ->
         logger.error err.stack if err
         process.exit()
 
     process.on 'uncaughtException', (err) ->
       logger.error err.stack, () ->
-        agent.shutdown (err) ->
+        clearInterval hb_interval
+        engine.shutdown (err) ->
           logger.error err.stack if err
           process.exit()
 
@@ -98,7 +145,7 @@ _supervisord = (options) ->
   sup = supervisor.Supervisor(script, args, 3000)
   sup.run((err) ->
     if err
-      console.log "failed to start ma-agent: #{err.message}"   
+      console.log "failed to start uc-agent: #{err.message}"   
       process.exit(1)
   )
 
@@ -111,12 +158,15 @@ main = () ->
     .parse(process.argv)
 
   options = 
-    remote_host : 'agent.uclogs.com'
-    remote_port : 443
-    buffer_size : 10000
-    buffer_flush : 30
+    remote:
+      host : 'agent.uclogs.com'
+      port : 443
+      buffer_size : 10000
+      buffer_flush : 30
     agent_report_interval: 30
     run_directory : '/var/run/uc-agent'
+    log_config_file : '/etc/uc-agent/log_files.conf'
+    config_refresh_second: 2
     tail : 
       pos_file: '/var/run/uc-agent/posdb'
       refresh_interval_seconds: 3
@@ -125,8 +175,9 @@ main = () ->
       restart_wait_time: 1000
       kill_wait_time: 3000
 
-  us.extend options, hoconfig(program.config or '/etc/uc-agent.conf')
+  us.extend options, hoconfig(program.config or '/etc/uc-agent/uc-agent.conf')
   license_key_file = path.join options.run_directory, 'license_key'
+  agant_id_file = path.join options.run_directory, 'agent_id'
 
   try
     license_key = _readLicenseKey(license_key_file)
@@ -135,21 +186,24 @@ main = () ->
     process.exit(1)
   
   options.license_key = license_key
+  options.agent_id = _readAgentId(agant_id_file)
 
+
+  logging_opts = options.logging
   ## init logger
-  logger.setLevel(options.log_level || 'info')
-  if options.log_file == 'console'
+  logger.setLevel(logging_opts.log_level || 'info')
+  if logging_opts.log_file == 'console'
     log4js.addAppender(log4js.appenders.console() );
   else
     maxSize = 10 * 1024 * 1024 #10m
-    if options.log_file_size
-      maxSize = util.parseHumaneSize(options.log_file_size)
+    if logging_opts.log_file_size
+      maxSize = util.parseHumaneSize(logging_opts.log_file_size)
 
     maxFiles = 5
-    if options.log_file_count
-      maxFiles = parseInt(options.log_file_count)
+    if logging_opts.log_file_count
+      maxFiles = parseInt(logging_opts.log_file_count)
 
-    log4js.addAppender(log4js.appenders.file(options.log_file, null, maxSize, maxFiles));
+    log4js.addAppender(log4js.appenders.file(logging_opts.log_file, null, maxSize, maxFiles));
 
 
   if program.supervisord and not process.env.__supervisor_child

@@ -2,7 +2,7 @@ us = require 'underscore'
 fs = require 'fs'
 command = require 'commander'
 
-LICENSE_KEY_FILE = '/etc/ma-agent/license_key'
+LICENSE_KEY_FILE = '/var/run/uc-agent/license_key'
 program = new command.Command("ma-agent-license-key")
 
 program
@@ -19,6 +19,8 @@ checkLicenseKey = () ->
 
 setLicenseKey =  (license_key) ->
   try
+    if not fs.existsSync('/var/run/uc-agent')
+      fs.mkdirSync('/var/run/uc-agent')
     fs.writeFileSync(LICENSE_KEY_FILE, license_key) 
     console.log "successfully set license_key #{license_key}"
   catch e

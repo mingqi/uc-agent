@@ -10,10 +10,13 @@
     "moment": "*",
     "verror": "*",
     "log4js": "*",
-    "xregexp": "*",
     "dirty" : "*",
     "tail-forever" : "*",
     "is-running" : "*",
-    "commander" : "*"
+    "commander" : "*",
+    "logcola" : "*",
+    "MD5" : "*",
+    "human-format" : "*",
+    "uuid" : "*"
   }
 }

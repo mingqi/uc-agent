@@ -1,5 +1,4 @@
 fs = require 'fs'
-glob = require 'glob'
 path = require 'path'
 us = require 'underscore'
 os = require 'os'
@@ -11,23 +10,18 @@ util = require './util'
 us = require 'underscore'
 async = require 'async'
 
-exports.local = local = (local_path, cb) ->
+exports.local = local = (local_path, callback) ->
   if not fs.existsSync(local_path)
-    return cb(new Error("not exists dir or file on #{local_path}"))
+    return callback(null, [])
 
-  stat = fs.statSync(local_path) 
-  if stat.isFile()
-    config = hoconfig(local_path)
-  else
-    config = us.reduce(
-      glob.sync(path.join(local_path, '*.conf')),
-      (c, file) ->
-        us.extend(c, hoconfig(file))
-      , 
-      {}) 
-  config = for monitor, config_item of config
-    us.extend(config_item, {monitor: monitor}) 
-  cb(null, config)
+  content = fs.readFileSync(local_path, "utf-8")
+  files = content.split('\n').map (line) ->
+    line.trim()
+
+  files = files.filter (f) ->
+    f.length > 0 
+  
+  callback(null, files)
 
 
 ###
@@ -44,7 +38,7 @@ exports.remote = remote = (options, callback) ->
       host: options.host 
       port: options.port
       method: 'GET'
-      path: /logfiles/+options.agent_id
+      path: /config/+options.agent_id
       headers : {
         'licenseKey' : options.license_key
       }
@@ -54,7 +48,7 @@ exports.remote = remote = (options, callback) ->
         logger.error err
         return cb(new VError(err, "failed to call remote service grab montior list"))       
       if status != 200
-        return cb(new Error("call /montor return error status #{status}"))
+        return cb(new Error("call /config return error status #{status}"))
       cb(null, result)
   )
 

@@ -1,11 +1,7 @@
 Engine = require './engine'
-plugin = require './plugin'
-upload = require './plugin/out_upload'
 us = require 'underscore'
-stdout = require './plugin/out_stdout'
 hoconfig = require 'hoconfig-js'
 path = require 'path'
-glob = require 'glob'
 fs = require 'fs'
 md5 = require 'MD5'
 async = require 'async'
@@ -15,21 +11,31 @@ logcola = require 'logcola'
 _checksum = (paths) ->
   md5(paths.slice().sort().join(','))
 
-module.exports = (configer, inputs, outputs, tail_opts) -> 
+###
+engine_opts:
+  - configer
+  - inputs
+  - outputs
+  - config_refresh_second
 
-  curr_paths = []
-  curr_paths_checksum = _checksum(curr_paths)
+tail_opts:
+  - pos_file
+  - refresh_interval_seconds
+###
+module.exports = (engine_opts, tail_opts) -> 
+  curr_paths_checksum = _checksum([])
   curr_tail = null
-  engine = logcola.engine()
+  engine = logcola.Engine()
+  interval_obj = null
 
-  for input in inputs
+  for input in engine_opts.inputs
     engine.addInput(input)
 
-  for [match, output] in outputs
+  for [match, output] in engine_opts.outputs
     engine.addOutput(match, output)
 
   _refreshInput = () ->
-    configer (err, paths) ->
+    engine_opts.configer (err, paths) ->
       if err
         logger.error err.stack
         return
@@ -38,7 +44,7 @@ module.exports = (configer, inputs, outputs, tail_opts) ->
       new_paths_checksum =  _checksum(new_paths)
 
       if new_paths_checksum != curr_paths_checksum
-        new_tail = logcola.plugins.tail
+        new_tail = logcola.plugins.Tail
           path: new_paths
           pos_file: tail_opts.pos_file
           refresh_interval_seconds: tail_opts.refresh_interval_seconds
@@ -50,18 +56,21 @@ module.exports = (configer, inputs, outputs, tail_opts) ->
               logger.error err
             else
               curr_tail = new_tail
+              curr_paths_checksum = new_paths_checksum
            
 
   return {
     start : (callback) ->
       engine.start((err) ->
         return callback(err) if err
-        refreshInput()
+        _refreshInput()
         logger.info "engine started"
-        setInterval(refreshInput, 2000)
+        interval_obj = setInterval(_refreshInput, engine_opts.config_refresh_second * 1000)
         callback()
       )
     
     shutdown : (callback) ->
+      if interval_obj
+        clearInterval(interval_obj)
       engine.shutdown(callback)
   }
