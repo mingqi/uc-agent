@@ -33,12 +33,13 @@ _readAgentId = (agent_id_file) ->
   
 
 _runEngine = (options, callback) -> 
-  ###
   remote_config = (callback) ->
     config.remote({
-      host: options.remote_host, 
-      port: options.remote_port, 
+      ssl: options.remote.ssl
+      host: options.remote.host, 
+      port: options.remote.port, 
       license_key: options.license_key
+      agent_id: options.agent_id
       }, callback)
 
   remote_backup_config = (callback) ->
@@ -47,13 +48,12 @@ _runEngine = (options, callback) ->
       path.join(options.run_directory, 'remote_backup_config.json')
       callback
     )
-  ###
 
   local = (callback) ->
     config.local(options.log_config_file, callback)
 
-  # merged_config = (callback) ->
-  #   config.merge(remote_backup_config, local, callback)
+  merged_config = (callback) ->
+    config.merge(remote_backup_config, local, callback)
   
   input_plugins = [
     {
@@ -69,14 +69,18 @@ _runEngine = (options, callback) ->
       type: 'uc_upload'
       host: options.remote.host
       port: options.remote.port
+      ssl: options.remote.ssl
       uri: '/log'
+      license_key: options.license_key
     }, options.buffer),   
     {
       match: 'status'
       type: 'uc_upload'
       host: options.remote.host
       port: options.remote.port
+      ssl: options.remote.ssl
       uri: '/status'
+      license_key: options.license_key
       buffer_type: 'memory'
       buffer_flush: 1
       buffer_size: 1000
@@ -87,11 +91,15 @@ _runEngine = (options, callback) ->
     }
   ]
 
+  if options.debug
+    output_plugins.push {match: 'status', type: 'uc_debug'}
+    output_plugins.push {match: 'log', type: 'uc_debug'}
+
   logcola.plugin.setPluginPath( path.join( __dirname, '../plugin' ) )
 
   engine = Engine(
     {
-      configer: local 
+      configer: merged_config 
       inputs:  input_plugins.map logcola.plugin
       outputs : output_plugins.map (c) -> [c.match, logcola.plugin(c)]
       config_refresh_second: options.config_refresh_second
@@ -161,19 +169,39 @@ main = () ->
     remote:
       host : 'agent.uclogs.com'
       port : 443
-      buffer_size : 10000
-      buffer_flush : 30
-    agent_report_interval: 30
+      ssl : true
+
+    config_refresh_second: 2
     run_directory : '/var/run/uc-agent'
     log_config_file : '/etc/uc-agent/log_files.conf'
-    config_refresh_second: 2
+
     tail : 
       pos_file: '/var/run/uc-agent/posdb'
       refresh_interval_seconds: 3
+
     supervisor: 
       watch_time: 3000
       restart_wait_time: 1000
       kill_wait_time: 3000
+
+    logging : 
+      log_level : 'debug'
+      log_file : 'console'
+      log_file_size : 1000
+      log_file_count : 5
+    
+    status_interval_seconds : 1
+    
+    buffer : 
+      buffer_type : 'file'
+      buffer_path : '/var/cache/uc-agent/log'
+      buffer_flush : 3
+      buffer_size : 1000
+      retry_times : 1
+      retry_interval : 1
+      buffer_queue_size : 1
+      concurrency : 1
+
 
   us.extend options, hoconfig(program.config or '/etc/uc-agent/uc-agent.conf')
   license_key_file = path.join options.run_directory, 'license_key'

@@ -1,4 +1,6 @@
 Engine = require './engine'
+UCTail = require './plugin/uc_tail'
+
 us = require 'underscore'
 hoconfig = require 'hoconfig-js'
 path = require 'path'
@@ -36,6 +38,7 @@ module.exports = (engine_opts, tail_opts) ->
 
   _refreshInput = () ->
     engine_opts.configer (err, paths) ->
+      logger.info "new file list from remote config is: #{paths}"
       if err
         logger.error err.stack
         return
@@ -44,7 +47,7 @@ module.exports = (engine_opts, tail_opts) ->
       new_paths_checksum =  _checksum(new_paths)
 
       if new_paths_checksum != curr_paths_checksum
-        new_tail = logcola.plugins.Tail
+        new_tail = UCTail
           path: new_paths
           pos_file: tail_opts.pos_file
           refresh_interval_seconds: tail_opts.refresh_interval_seconds

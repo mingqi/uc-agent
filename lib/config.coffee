@@ -34,7 +34,7 @@ options:
 exports.remote = remote = (options, callback) ->
   util.rest(
     {
-      ssl: true
+      ssl: options.ssl
       host: options.host 
       port: options.port
       method: 'GET'
@@ -46,10 +46,12 @@ exports.remote = remote = (options, callback) ->
   , (err, status, result) ->
       if err
         logger.error err
-        return cb(new VError(err, "failed to call remote service grab montior list"))       
+        return callback(new VError(err, "failed to call remote service grab montior list"))       
       if status != 200
-        return cb(new Error("call /config return error status #{status}"))
-      cb(null, result)
+        return callback(new Error("call /config return error status #{status}"))
+
+      logger.info "read file list from remote config: #{JSON.stringify result}"
+      callback(null, result)
   )
 
 exports.json = json = (local_path, callback) ->
@@ -89,6 +91,7 @@ exports.merge = merge = ( args... ) ->
         if err
           callback(err)
         else
+          logger.debug "memo=#{memo}, config=#{config}"
           callback(err, memo.concat(config))
   , callback)
 

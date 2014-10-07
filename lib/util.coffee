@@ -117,6 +117,8 @@ exports.rest = (options, body, callback) ->
             callback(null, response.statusCode, result) 
           catch e
             callback(new Error("bad response, not JSON formant: #{buffer.toString()}"))      
+      else
+        callback(null, response.statusCode)
     )
   )
 
