@@ -210,7 +210,7 @@ main = () ->
   try
     license_key = _readLicenseKey(license_key_file)
   catch e
-    console.log "license key can't be read correctly, please run '/opt/uc-agent/bin/license_key' to setup first: #{e.message}"
+    console.log "license key can't be read correctly, please run '/opt/uc-agent/bin/license-key' to setup first: #{e.message}"
     process.exit(1)
   
   options.license_key = license_key

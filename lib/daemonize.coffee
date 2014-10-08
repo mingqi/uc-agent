@@ -1,8 +1,11 @@
 spawn = require('child_process').spawn
 fs = require 'fs'
 running = require('is-running')
-util = require './util'
 async = require 'async'
+mkdirp = require 'mkdirp'
+path = require 'path'
+
+util = require './util'
 
 ### options:
   script
@@ -36,6 +39,8 @@ module.exports  = (options) ->
       return null
 
   writePid = (pid) ->
+    if not fs.existsSync(path.dirname(pidFile))
+      mkdirp.sync path.dirname(pidFile)
     fs.writeFileSync(pidFile, pid)
    
   return {

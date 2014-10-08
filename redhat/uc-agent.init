@@ -1,32 +1,32 @@
 #!/bin/bash
 #
-# /etc/rc.d/init.d/ma-agent
+# /etc/rc.d/init.d/uc-agent
 #
 # chkconfig: 345 80 20
-# description: ma-agent
-# processname: ma-agent
-# pidfile: /var/run/ma-agent.pid
+# description: uc-agent
+# processname: uc-agent
+# pidfile: /var/run/uc-agent/uc-agent.pid
 #
 ### BEGIN INIT INFO
-# Provides:          ma-agent
+# Provides:          uc-agent
 # Default-Stop:      0 1 6
 # Required-Start:    $local_fs
 # Required-Stop:     $local_fs
-# Short-Description: ma-agent's init script
-# Description:       ma-agent is a data collector
+# Short-Description: uc-agent's init script
+# Description:       uc-agent is a data collector
 ### END INIT INFO
 
 # Source function library.
 . /etc/init.d/functions
 
-name="ma-agent"
-prog="ma-agent"
-ma_agent=/opt/ma-agent/bin/ma-agent
+name="uc-agent"
+prog="uc-agent"
+uc_agent=/opt/uc-agent/bin/uc-agent
 
 # timeout can be overridden from /etc/sysconfig/td-agent
 STOPTIMEOUT=60
 
-PIDFILE=${PIDFILE-/var/run/$prog.pid}
+PIDFILE=${PIDFILE-/var/run/uc-agent/$prog.pid}
 MA_AGENT_ARGS="${MA_AGENT_ARGS-start -s}"
 
 RETVAL=0
@@ -36,23 +36,23 @@ start() {
 	# see http://docs.fluentd.org/en/articles/before-install
 	echo -n "Starting $name: "
 	MA_AGENT_PID=$PIDFILE
-	daemon --pidfile=$PIDFILE $ma_agent "$MA_AGENT_ARGS"
+	daemon --pidfile=$PIDFILE $uc_agent "$MA_AGENT_ARGS"
 	RETVAL=$?
 	echo
 	if [[ ! "$RETVAL" -eq 0 ]]; then
-		echo "please see more detail information in /var/log/ma-agent.log"
+		echo "please see more detail information in /var/log/uc-agent.log"
 	fi
 	return $RETVAL
 }
 
 stop() {
 	echo -n "Shutting down $name: "
-	$ma_agent stop
+	$uc_agent stop
 	RETVAL=$?
 	 [ "$RETVAL" -eq 0 ] && success $"startup" || failure $"startup"
 	 echo
 	if [[ ! "$RETVAL" -eq 0 ]]; then
-		echo "please see more detail information in /var/log/ma-agent.log"
+		echo "please see more detail information in /var/log/uc-agent.log"
 	fi
 	return $RETVAL
 }

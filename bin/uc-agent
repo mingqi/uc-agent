@@ -6,4 +6,4 @@ name='mingqi'
 # echo $name
 
 DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )")
-$DIR/node/bin/node $DIR/node_modules/ma-agent/lib/cli/daemon.js $*
+$DIR/node/bin/node $DIR/node_modules/uc-agent/lib/cli/daemon.js $*

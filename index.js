@@ -1,1 +1,1 @@
-module.exports = require('./lib/cli/ma-agent')
+module.exports = require('./lib/cli/uc-agent')

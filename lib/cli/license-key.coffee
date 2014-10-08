@@ -3,7 +3,7 @@ fs = require 'fs'
 command = require 'commander'
 
 LICENSE_KEY_FILE = '/var/run/uc-agent/license_key'
-program = new command.Command("ma-agent-license-key")
+program = new command.Command("uc-agent-license-key")
 
 program
   .option('-s, --set [license key]', 'set license key')

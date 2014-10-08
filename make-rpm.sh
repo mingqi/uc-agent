@@ -7,8 +7,8 @@ set -e
 ./make-tarball.sh $@
 
 ## rpmbuild
-mv _build/ma-agent-${VERSION}.tar.gz _build/rpmbuild/SOURCES
-cp redhat/ma-agent.spec _build/rpmbuild/SPECS
-cp redhat/ma-agent.init _build/rpmbuild/SOURCES
+mv _build/uc-agent-${VERSION}.tar.gz _build/rpmbuild/SOURCES
+cp redhat/uc-agent.spec _build/rpmbuild/SPECS
+cp redhat/uc-agent.init _build/rpmbuild/SOURCES
 
-cd _build/rpmbuild && rpmbuild -ba SPECS/ma-agent.spec
+cd _build/rpmbuild && rpmbuild -ba SPECS/uc-agent.spec

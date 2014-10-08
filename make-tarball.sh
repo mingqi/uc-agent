@@ -1,12 +1,11 @@
 #!/bin/bash 
 set -e 
+set -x
 
 VERSION=`cat VERSION`
-ROOT=_build/ma-agent-${VERSION}
-# OPT_ROOT=${ROOT}/opt/ma-agent
+ROOT=_build/uc-agent-${VERSION}
 OPT_ROOT=${ROOT}
 NODE_VERSION='0.10.29'
-JRE_VERSION='7u65'
 
 ARCH=`uname -m`
 CONF='prod'
@@ -44,17 +43,14 @@ echo "CONF is $CONF"
 
 if [ $ARCH = 'x86_64' ]; then
   NODE_ARCH='x64'
-  JRE_ARCH='x64'
   ARCH_NAME='x86_64'
 else
   NODE_ARCH='x86'
-  JRE_ARCH='i586'
   ARCH_NAME='i386'
 fi
 
 NODE=node-v${NODE_VERSION}-linux-${NODE_ARCH}
-JRE=jre-${JRE_VERSION}-linux-${JRE_ARCH}
-TARBALL_NAME=ma-agent-${VERSION}
+TARBALL_NAME=uc-agent-${VERSION}
 if [[ ! "$LONG_NAME" -eq 0 ]]; then
   TARBALL_NAME="${TARBALL_NAME}-linux-${ARCH_NAME}"
 fi
@@ -70,28 +66,14 @@ for rpm_sub_dir in SPECS SOURCES RPMS SRPMS BUILD BUILDROOT; do
   mkdir -p _build/rpmbuild/$rpm_sub_dir
 done
 
-# jar
-ant
 
 # node
 tar -xf resources/node/$NODE.tar.gz -C _build/
 mv _build/$NODE ${OPT_ROOT}/node
-# find ${OPT_ROOT}/node/ -type f -exec chmod 644 {} +
-# chmod 755 ${OPT_ROOT}/node/bin/node ## jre
 
-# jre
-tar -xf resources/jre/$JRE.gz -C _build
-mv _build/jre1.7.0_65 ${OPT_ROOT}/jre
-# find ${OPT_ROOT}/jre/ -type f -exec chmod 644 {} +
-# chmod 755 ${OPT_ROOT}/jre/bin/java
-
-## jar
-mkdir -p ${OPT_ROOT}/lib
-cp _build/ma-agent.jar ${OPT_ROOT}/lib
-cp resources/jars/*.jar ${OPT_ROOT}/lib
 
 ## npm
-coffee -c -o _build/npm/lib ./src/node
+coffee -c -o _build/npm/lib ./lib
 cp index.js ./_build/npm
 cp ./package.json ./_build/npm
 
@@ -102,20 +84,18 @@ popd
 mv /tmp/node_modules ${OPT_ROOT}/
 # find ${OPT_ROOT}/node_modules -type f -exec chmod 644 {} +
 
-# bin var
+# bin
 cp -r bin ${OPT_ROOT}
 chmod -R 755 ${OPT_ROOT}/bin
-mkdir ${OPT_ROOT}/var
 
 # etc
-mkdir -p ${ROOT}/res/etc/ma-agent
-mkdir -p ${ROOT}/res/etc/ma-agent/monitor.d
-cp conf/$CONF.conf ${ROOT}/res/etc/ma-agent/ma-agent.conf
+mkdir -p ${ROOT}/res/etc/uc-agent
+cp conf/$CONF.conf ${ROOT}/res/etc/uc-agent/uc-agent.conf
 
 ## init.d
 # mkdir -p ${ROOT}/res/etc/init.d/
 # cp init.d/ma-agent ${ROOT}/res/etc/init.d
 
 ## tarball
-pushd _build && tar -zcf ${TARBALL_NAME} ma-agent-${VERSION}
+pushd _build && tar -zcf ${TARBALL_NAME} uc-agent-${VERSION}
 popd

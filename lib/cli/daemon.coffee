@@ -5,18 +5,18 @@ args = process.argv[2..]
 action = args.shift()
 
 daemon = Deamonize({
-  script: require.resolve('./ma-agent.js')
+  script: require.resolve('./uc-agent.js')
   args: args
-  pidFile: process.env.MA_AGENT_PID ||  '/var/run/ma-agent.pid'
-  outFile: "/var/log/ma-agent.log"
-  errFile: "/var/log/ma-agent.log"
+  pidFile: process.env.MA_AGENT_PID ||  '/var/run/uc-agent/uc-agent.pid'
+  outFile: "/var/log/uc-agent.log"
+  errFile: "/var/log/uc-agent.log"
   stopTimeout: 3000
   startTimeout: 3000
 })
 
 
 help = () ->
-  console.log "usage: ma-agent <start|stop|restart> [args] "
+  console.log "usage: uc-agent <start|stop|restart> [args] "
   process.exit(1)
   
 

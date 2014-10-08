@@ -3,4 +3,4 @@
 name='mingqi'
 
 DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )")
-$DIR/node/bin/node $DIR/node_modules/ma-agent/lib/cli/license-key.js $*
+$DIR/node/bin/node $DIR/node_modules/uc-agent/lib/cli/license-key.js $*

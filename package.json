@@ -1,5 +1,5 @@
 {
-  "name": "ma-agent",
+  "name": "uc-agent",
   "description": "agent of Monitor@",
   "version": "0.0.1",
   "private": true,
@@ -17,6 +17,7 @@
     "logcola" : "*",
     "MD5" : "*",
     "human-format" : "*",
-    "uuid" : "*"
+    "uuid" : "*",
+    "mkdirp" : "*"
   }
 }
