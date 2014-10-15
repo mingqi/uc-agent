@@ -1,6 +1,5 @@
 #!/bin/bash 
 set -e 
-set -x
 
 VERSION=`cat VERSION`
 ROOT=_build/uc-agent-${VERSION}

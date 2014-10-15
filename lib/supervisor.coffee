@@ -2,6 +2,7 @@ spawn = require('child_process').spawn
 fork = require('child_process').fork
 util = require './util'
 running = require('is-running')
+log4js = require 'log4js'
 
 ###
 - script: child script
@@ -11,6 +12,9 @@ running = require('is-running')
 - wait_time: 
 
 ###
+
+logger = log4js.getLogger('supervisor')
+
 exports.Supervisor = Supervisor = (script, args, options) ->  
   watch_time = options.watch_time
   restart_wait_time = options.restart_wait_time
@@ -27,6 +31,7 @@ exports.Supervisor = Supervisor = (script, args, options) ->
   can_restart = false
 
   forkChild = (is_first, callback) ->
+    logger.info "forking child..."
     callback = (() -> ) if not callback
     child = fork(script, args, fork_opts)
 
@@ -36,12 +41,15 @@ exports.Supervisor = Supervisor = (script, args, options) ->
           not running(child.pid)     
       , (err, not_running) ->
           if not_running
+            logger.error "failed to fork child, child process quit in #{watch_time}"
             callback(new Error("child process quit in #{watch_time}"))
           else
+            logger.info "success fork child"
             callback()
       )
 
     child.on('exit', (code, signal) ->
+      logger.warn "child exit"
       return if not can_restart 
       setTimeout(() ->
         process.nextTick(forkChild)
@@ -52,10 +60,10 @@ exports.Supervisor = Supervisor = (script, args, options) ->
   killChild =  (callback) ->
     util.kill(child.pid, kill_wait_time, callback )
 
-  sendHeartbeat = () ->
+  sendParentPID = () ->
     setInterval(() ->
-      child.send('heartbeat') if child.connected
-    , 500
+      child.send(process.pid) if child.connected
+    , 1000
     )
   
  
@@ -64,7 +72,7 @@ exports.Supervisor = Supervisor = (script, args, options) ->
       forkChild(true, (err) ->
         if not err
           can_restart = true
-          sendHeartbeat()
+          sendParentPID()
         callback(err)
       )
 
@@ -90,17 +98,20 @@ supervisor will send heartbeat message to child every 0.5 seconds.
 child can use this function to received heartbeat and child process
 will quit if not recieved heartbeat over timetout
 ###
-exports.checkHeartbeat = checkHeartbeat = (timeout) ->
-  last_heartbeat = null
+exports.checkParentPID = checkParentPID = (quit) ->
+  parent_pid = null
   process.on('message', (msg) ->
-    return if msg != 'heartbeat' 
-    last_heartbeat = util.systemTime()
+    pid = parseInt(msg)
+    if pid 
+      parent_pid = pid 
   )
 
-  setInterval(() ->
-    return if not last_heartbeat
-    if (util.systemTime() - last_heartbeat ) > timeout
-      logger.warn "too long not receive parent heartbeat, quit."
-      process.exit()
-  , 500
+  return setInterval(() ->
+    logger.info "checking if parent supervisor process is running..."
+    return if not parent_pid
+    if not running(parent_pid)
+      logger.warn "parent supervisor process #{parent_pid} is not running, child will quit"
+      quit()
+
+  , 3000
   )

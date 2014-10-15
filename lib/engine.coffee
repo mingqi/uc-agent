@@ -6,7 +6,7 @@ hoconfig = require 'hoconfig-js'
 path = require 'path'
 fs = require 'fs'
 md5 = require 'MD5'
-async = require 'async'
+async = require 'uclogs-async'
 VError = require('verror')
 logcola = require 'logcola'
 
@@ -51,6 +51,8 @@ module.exports = (engine_opts, tail_opts) ->
           path: new_paths
           pos_file: tail_opts.pos_file
           refresh_interval_seconds: tail_opts.refresh_interval_seconds
+          max_size: tail_opts.max_size
+          buffer_size : tail_opts.buffer_size
 
         engine.removeInput curr_tail, (err) ->
           throw err if err

@@ -114,43 +114,47 @@ _runEngine = (options, callback) ->
   
 
 _worker = (options) ->
+    
   ## this is child run
   _runEngine options, (err, engine) ->
     if err
       logger.error err.stack
       process.exit(1) 
 
-    hb_interval = supervisor.checkHeartbeat(3000)
+    hb_interval =  null
+
+    _quit = () ->
+      logger.warn "child / worker process are cleanup and quit..."
+      clearInterval hb_interval if hb_interval
+      engine.shutdown (err) ->
+        logger.error err.stack if err
+        process.exit()
+
+      setTimeout(() ->
+        logger.warn "child / worker not completed cleanup in #{options.worker_cleanup_timeout} millsenconds, force quit"
+        process.exit()
+      , options.worker_cleanup_timeout)      
+          
+    hb_interval = supervisor.checkParentPID(_quit)
 
     process.on 'SIGTERM', () ->
-      clearInterval hb_interval
-      engine.shutdown (err) ->
-        logger.error err.stack if err
-        process.exit()
+      logger.warn "uc-agent recieve SIGTERM signal"
+      _quit()
 
      process.on 'SIGINT', () ->
-      clearInterval hb_interval
-      engine.shutdown (err) ->
-        logger.error err.stack if err
-        process.exit()
+      logger.warn "uc-agent recieve SIGINT signal"
+      _quit()
 
     process.on 'uncaughtException', (err) ->
-      logger.error err.stack, () ->
-        clearInterval hb_interval
-        engine.shutdown (err) ->
-          logger.error err.stack if err
-          process.exit()
-
-      ## process will exit in 3 seconds
-      setTimeout(() ->
-        process.exit()
-      , 3000 )
+      logger.error "uc-agent got uncaughtException"
+      logger.error err
+      _quit()
         
 
 _supervisord = (options) ->
   script = process.argv[1]
   args = process.argv[2..]
-  sup = supervisor.Supervisor(script, args, 3000)
+  sup = supervisor.Supervisor(script, args, options.supervisor)
   sup.run((err) ->
     if err
       console.log "failed to start uc-agent: #{err.message}"   
@@ -178,6 +182,8 @@ main = () ->
     tail : 
       pos_file: '/var/run/uc-agent/posdb'
       refresh_interval_seconds: 3
+      max_size: 52428800
+      buffer_size: 1048576
 
     supervisor: 
       watch_time: 3000
@@ -201,6 +207,8 @@ main = () ->
       retry_interval : 1
       buffer_queue_size : 1
       concurrency : 1
+
+    child_heartbeat_timeout : 10000
 
 
   us.extend options, hoconfig(program.config or '/etc/uc-agent/uc-agent.conf')
@@ -235,7 +243,7 @@ main = () ->
 
 
   if program.supervisord and not process.env.__supervisor_child
-    _supervisord()
+    _supervisord(options)
   else
     _worker(options)
 

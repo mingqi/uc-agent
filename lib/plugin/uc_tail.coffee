@@ -1,5 +1,6 @@
 logcola = require 'logcola'
 os = require 'os'
+moment = require 'moment'
 
 module.exports = (config) ->
 
@@ -13,7 +14,8 @@ module.exports = (config) ->
         message: line
         host: os.hostname()
         event_timestamp: (new Date()).getTime()
-      } 
+        tz_offset: moment().zone()
+      }
 
   return tail
   

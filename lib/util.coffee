@@ -2,7 +2,7 @@ http = require 'http'
 https = require 'https'
 zlib = require 'zlib'
 us = require 'underscore'
-async = require 'async'  
+async = require 'uclogs-async'  
 running = require('is-running')
 spawn = require('child_process').spawn
 fs = require 'fs'
@@ -96,6 +96,7 @@ exports.rest = (options, body, callback) ->
     )
 
     response.on('end',  () ->
+      logger.debug "rest call end with #{response.statusCode}"
       buffer = Buffer.concat(buffs);
       result = null
       if buffer.length > 0

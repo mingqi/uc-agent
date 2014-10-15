@@ -8,7 +8,7 @@ zlib = require 'zlib'
 hoconfig = require 'hoconfig-js'
 util = require './util'
 us = require 'underscore'
-async = require 'async'
+async = require 'uclogs-async'
 
 exports.local = local = (local_path, callback) ->
   if not fs.existsSync(local_path)
@@ -73,7 +73,7 @@ exports.backup = backup = (configer, backup_path, callback) ->
     else
       fs.writeFile(backup_path, JSON.stringify(config), (err) ->
         if err
-          callback(new VError(err, "failed to backup config to local #{backup_path}"))      
+          throw new VError(err, "failed to backup config to local #{backup_path}")
         else
           callback(null, config)
       )
@@ -81,7 +81,7 @@ exports.backup = backup = (configer, backup_path, callback) ->
 exports.merge = merge = ( args... ) ->
   callback = args[args.length - 1] 
   if args.length < 3
-    return callback(new Error('wrong argument pass to merge function, at less three input'))  
+    throw new Error('wrong argument pass to merge function, at less three input')
   
   async.reduce(
     args[..-2]

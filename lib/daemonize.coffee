@@ -1,7 +1,7 @@
 spawn = require('child_process').spawn
 fs = require 'fs'
 running = require('is-running')
-async = require 'async'
+async = require 'uclogs-async'
 mkdirp = require 'mkdirp'
 path = require 'path'
 

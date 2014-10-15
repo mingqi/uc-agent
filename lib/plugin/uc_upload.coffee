@@ -16,14 +16,43 @@ util = require '../util'
 
 ###
 
-UCUpload = (config) ->
+module.exports = (config) ->
   _host = config.host
   _port = config.port
   _uri = config.uri
   _ssl = config.ssl
   _license_key = config.license_key
 
-  logger.debug "license_keyyyy=#{_license_key}"
+  _buffer = new logcola.Buffer(config)
+  _buffer.writeChunk = (chunk, callback) ->
+    body = []
+    for {tag, record, time} in chunk
+      body.push(record)
+
+    logger.info "sending #{body.length} data to remote server #{_uri}"
+    util.rest({
+      ssl: _ssl
+      host: _host
+      port: _port
+      method: 'POST'
+      path: _uri 
+      headers : {
+        'licenseKey' : config.license_key
+        }               
+      }
+    , JSON.stringify(body)
+    , (err, status, result) ->
+        if err
+          logger.warn "failure on send data to #{_uri}"
+          callback(new VError(err, "failure on send data to #{_host}:#{_port}/#{_uri}")) 
+        else
+          if status != 200
+            logger.warn "remote server response #{status}"
+            callback(new Error("upload service return error response, status=#{status}"))
+          else
+            logger.info "success send #{body.length} data"
+            callback()
+      )
 
   return {
     
@@ -35,33 +64,6 @@ UCUpload = (config) ->
       logger.info "remote plugin for #{config.uri} shutdown..."
       callback()
 
-    writeChunk : (chunk, callback) ->
-      body = []
-      for {tag, record, time} in chunk
-        body.push(record)
+    write : _buffer.write
 
-      util.rest({
-        ssl: _ssl
-        host: _host
-        port: _port
-        method: 'POST'
-        path: _uri 
-        headers : {
-          'licenseKey' : config.license_key
-          }               
-        }
-      , JSON.stringify(body)
-      , (err, status, result) ->
-          if err
-            callback(new VError(err, "failure on send data to #{_host}:#{_port}/#{_uri}")) 
-          else
-            if status != 200
-              callback(new Error("upload service return error response, status=#{status}"))
-            else
-              callback()
-        )
   }
-
-
-module.exports = (config) -> 
-  logcola.Buffer(config, UCUpload(config))
