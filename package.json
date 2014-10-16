@@ -18,6 +18,7 @@
     "MD5" : "*",
     "human-format" : "*",
     "uuid" : "*",
-    "mkdirp" : "*"
+    "mkdirp" : "*",
+    "findtime" : "*"
   }
 }

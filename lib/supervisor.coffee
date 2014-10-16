@@ -107,7 +107,7 @@ exports.checkParentPID = checkParentPID = (quit) ->
   )
 
   return setInterval(() ->
-    logger.info "checking if parent supervisor process is running..."
+    logger.debug "checking if parent supervisor process is running..."
     return if not parent_pid
     if not running(parent_pid)
       logger.warn "parent supervisor process #{parent_pid} is not running, child will quit"
