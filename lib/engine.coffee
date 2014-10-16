@@ -38,7 +38,7 @@ module.exports = (engine_opts, tail_opts) ->
 
   _refreshInput = () ->
     engine_opts.configer (err, paths) ->
-      logger.info "new file list from remote config is: #{paths}"
+      logger.info "new log file list from remote config is: #{paths}"
       if err
         logger.error err.stack
         return
@@ -47,12 +47,14 @@ module.exports = (engine_opts, tail_opts) ->
       new_paths_checksum =  _checksum(new_paths)
 
       if new_paths_checksum != curr_paths_checksum
+        logger.info "log file list is chanrged,  need to refresh Tail to reflect changes"
         new_tail = UCTail
           path: new_paths
           pos_file: tail_opts.pos_file
           refresh_interval_seconds: tail_opts.refresh_interval_seconds
           max_size: tail_opts.max_size
           buffer_size : tail_opts.buffer_size
+          encoding: 'auto'
 
         engine.removeInput curr_tail, (err) ->
           throw err if err
