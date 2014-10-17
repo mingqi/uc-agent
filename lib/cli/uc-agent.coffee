@@ -6,6 +6,7 @@ log4js = require 'log4js'
 logcola = require 'logcola'
 hoconfig = require 'hoconfig-js'
 uuid = require 'uuid'
+sys = require 'extend'
 
 Engine = require '../engine'
 config = require '../config'
@@ -58,7 +59,7 @@ _runEngine = (options, callback) ->
   input_plugins = [
     {
       type: 'uc_status'
-      interval: options.status_interval_seconds
+      interval: options.status_interval
       agent_id: options.agent_id
     }
   ]  
@@ -85,7 +86,7 @@ _runEngine = (options, callback) ->
       buffer_flush: 1
       buffer_size: 1000
       retry_times: 1
-      retry_interval: 1
+      retry_interval: 1000
       buffer_queue_size: 1
       concurrency: 1
     }
@@ -102,7 +103,7 @@ _runEngine = (options, callback) ->
       configer: merged_config 
       inputs:  input_plugins.map logcola.plugin
       outputs : output_plugins.map (c) -> [c.match, logcola.plugin(c)]
-      config_refresh_second: options.config_refresh_second
+      config_refresh_interval: options.config_refresh_interval
     },
     options.tail
   )
@@ -175,43 +176,44 @@ main = () ->
       port : 443
       ssl : true
 
-    config_refresh_second: 2
+    config_refresh_interval: 30000
+    status_interval:  10000
+    debug = false
     run_directory : '/var/run/uc-agent'
     log_config_file : '/etc/uc-agent/log_files.conf'
 
     tail : 
       pos_file: '/var/run/uc-agent/posdb'
-      refresh_interval_seconds: 3
+      refresh_interval: 3
       max_size: 52428800
       buffer_size: 1048576
 
     supervisor: 
       watch_time: 3000
       restart_wait_time: 1000
-      kill_wait_time: 3000
+      kill_wait_time: 5000
 
     logging : 
       log_level : 'debug'
       log_file : 'console'
-      log_file_size : 1000
+      log_file_size : 20971520 # 20m
       log_file_count : 5
-    
-    status_interval_seconds : 1
     
     buffer : 
       buffer_type : 'file'
       buffer_path : '/var/cache/uc-agent/log'
-      buffer_flush : 3
-      buffer_size : 1000
-      retry_times : 1
-      retry_interval : 1
-      buffer_queue_size : 1
+      buffer_flush : 30000
+      buffer_size : 1048576
+      retry_times : 30
+      retry_interval : 60000
+      buffer_queue_size : 200
       concurrency : 1
 
-    child_heartbeat_timeout : 10000
 
 
-  us.extend options, hoconfig(program.config or '/etc/uc-agent/uc-agent.conf')
+  extend options, hoconfig(program.config or '/etc/uc-agent/uc-agent.conf')
+  logger.info "uc-agent's configuration is #{JSON.stringify(options)}"
+  
   license_key_file = path.join options.run_directory, 'license_key'
   agant_id_file = path.join options.run_directory, 'agent_id'
 
@@ -233,7 +235,7 @@ main = () ->
   else
     maxSize = 10 * 1024 * 1024 #10m
     if logging_opts.log_file_size
-      maxSize = util.parseHumaneSize(logging_opts.log_file_size)
+      maxSize = logging_opts.log_file_size
 
     maxFiles = 5
     if logging_opts.log_file_count

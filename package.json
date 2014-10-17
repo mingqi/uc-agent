@@ -19,6 +19,7 @@
     "human-format" : "*",
     "uuid" : "*",
     "mkdirp" : "*",
-    "findtime" : "*"
+    "findtime" : "*",
+    "extend" : "*"
   }
 }

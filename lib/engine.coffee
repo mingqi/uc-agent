@@ -18,11 +18,11 @@ engine_opts:
   - configer
   - inputs
   - outputs
-  - config_refresh_second
+  - config_refresh_interval
 
 tail_opts:
   - pos_file
-  - refresh_interval_seconds
+  - refresh_interval
 ###
 module.exports = (engine_opts, tail_opts) -> 
   curr_paths_checksum = _checksum([])
@@ -51,7 +51,7 @@ module.exports = (engine_opts, tail_opts) ->
         new_tail = UCTail
           path: new_paths
           pos_file: tail_opts.pos_file
-          refresh_interval_seconds: tail_opts.refresh_interval_seconds
+          refresh_interval: tail_opts.refresh_interval
           max_size: tail_opts.max_size
           buffer_size : tail_opts.buffer_size
           encoding: 'auto'
@@ -72,7 +72,7 @@ module.exports = (engine_opts, tail_opts) ->
         return callback(err) if err
         _refreshInput()
         logger.info "engine started"
-        interval_obj = setInterval(_refreshInput, engine_opts.config_refresh_second * 1000)
+        interval_obj = setInterval(_refreshInput, engine_opts.config_refresh_interval )
         callback()
       )
     

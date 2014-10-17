@@ -21,7 +21,7 @@ module.exports = (config) ->
             hostname: os.hostname()
             version: VERSION
 
-      , _interval * 1000
+      , _interval 
       
       callback() 
 
