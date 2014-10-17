@@ -52,6 +52,7 @@ module.exports = (engine_opts, tail_opts) ->
           path: new_paths
           pos_file: tail_opts.pos_file
           refresh_interval: tail_opts.refresh_interval
+          save_posotion_interval: tail_opts.save_posotion_interval
           max_size: tail_opts.max_size
           buffer_size : tail_opts.buffer_size
           encoding: 'auto'

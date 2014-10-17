@@ -177,15 +177,16 @@ main = () ->
       host : 'agent.uclogs.com'
       port : 443
       ssl : true
-    config_refresh_interval: 30000
-    status_interval : 10000
+    config_refresh_interval: 30000 # 30 seconds
+    status_interval : 10000 # 10 seconds
     debug : false
     run_directory : '/var/run/uc-agent'
     log_config_file : '/etc/uc-agent/log_files.conf'
 
     tail : 
       pos_file: '/var/run/uc-agent/posdb'
-      refresh_interval: 3
+      refresh_interval: 10000
+      save_posotion_interval: 10000
       max_size: 52428800
       buffer_size: 1048576
 
@@ -195,9 +196,9 @@ main = () ->
       kill_wait_time: 5000
 
     logging : 
-      log_level : 'debug'
-      log_file : 'console'
-      log_file_size : 20971520 # 20m
+      log_level : 'info'
+      log_file : '/var/log/uc-agent.log'
+      log_file_size : 20971520 # 10m
       log_file_count : 5
     
     buffer : 
@@ -208,7 +209,7 @@ main = () ->
       retry_times : 30
       retry_interval : 60000
       buffer_queue_size : 200
-      concurrency : 1
+      concurrency : 3
 
     worker_cleanup_timeout : 5000
 
