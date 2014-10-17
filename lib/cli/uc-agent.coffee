@@ -6,7 +6,7 @@ log4js = require 'log4js'
 logcola = require 'logcola'
 hoconfig = require 'hoconfig-js'
 uuid = require 'uuid'
-sys = require 'extend'
+extend = require 'extend'
 
 Engine = require '../engine'
 config = require '../config'
@@ -128,6 +128,8 @@ _worker = (options) ->
       logger.warn "child / worker process are cleanup and quit..."
       clearInterval hb_interval if hb_interval
       engine.shutdown (err) ->
+        console.log "engine shutdown done"
+        console.log err.stack if err
         logger.error err.stack if err
         process.exit()
 
@@ -175,10 +177,9 @@ main = () ->
       host : 'agent.uclogs.com'
       port : 443
       ssl : true
-
     config_refresh_interval: 30000
-    status_interval:  10000
-    debug = false
+    status_interval : 10000
+    debug : false
     run_directory : '/var/run/uc-agent'
     log_config_file : '/etc/uc-agent/log_files.conf'
 
@@ -209,11 +210,13 @@ main = () ->
       buffer_queue_size : 200
       concurrency : 1
 
+    worker_cleanup_timeout : 5000
+
 
 
   extend options, hoconfig(program.config or '/etc/uc-agent/uc-agent.conf')
-  logger.info "uc-agent's configuration is #{JSON.stringify(options)}"
-  
+  console.log "uc-agent's configuration is #{JSON.stringify(options, null, 4)}"
+
   license_key_file = path.join options.run_directory, 'license_key'
   agant_id_file = path.join options.run_directory, 'agent_id'
 
