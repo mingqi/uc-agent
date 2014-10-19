@@ -216,7 +216,7 @@ main = () ->
 
 
   extend options, hoconfig(program.config or '/etc/uc-agent/uc-agent.conf')
-  console.log "uc-agent's configuration is #{JSON.stringify(options, null, 4)}"
+  # console.log "uc-agent's configuration is #{JSON.stringify(options, null, 4)}"
 
   license_key_file = path.join options.run_directory, 'license_key'
   agant_id_file = path.join options.run_directory, 'agent_id'
