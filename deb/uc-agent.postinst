@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+
+add-init(){
+	if [ -x "/etc/init.d/uc-agent" ]; then
+	  update-rc.d uc-agent defaults >/dev/null 2>&1
+	fi
+}
+
+startup_program(){
+    if [ -f "/var/run/uc-agent/license_key" ]; then
+      echo "restart uc-agent ..."
+      /etc/init.d/uc-agent restart
+    fi
+}
+
+
+case "$1" in
+    configure)
+        add-init
+        startup_program
+        ;;
+    abort-upgrade|abort-deconfigure|abort-remove)
+        :
+        ;;
+    *)
+        echo "Called with unknown argument $1, bailing out."
+        exit 1
+        ;;
+esac

@@ -1,7 +1,0 @@
-jre opt/ma-agent/
-lib opt/ma-agent/
-node opt/ma-agent/
-node_modules opt/ma-agent/
-bin opt/ma-agent
-var opt/ma-agent
-res/* /

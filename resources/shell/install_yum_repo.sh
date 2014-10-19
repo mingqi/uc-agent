@@ -8,10 +8,10 @@ sudo -k
 sudo sh <<SCRIPT
 
   # add treasure data repository to yum
-  cat >/etc/yum.repos.d/metricsat.repo <<'EOF';
-[metricsat]
-name = Metrics At, Inc.
-baseurl = http://yum.metricsat.com/repo/\$basearch
+  cat >/etc/yum.repos.d/uclogs.repo <<'EOF';
+[uclogs]
+name = UC Logs, Inc.
+baseurl = http://yum.uclogs.com/repo/\$basearch
 enabled=1
 gpgcheck=0
 EOF

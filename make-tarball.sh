@@ -93,7 +93,7 @@ cp conf/$CONF.conf ${ROOT}/res/etc/uc-agent/uc-agent.conf
 
 ## init.d
 # mkdir -p ${ROOT}/res/etc/init.d/
-# cp init.d/ma-agent ${ROOT}/res/etc/init.d
+# cp init.d/uc-agent ${ROOT}/res/etc/init.d
 
 ## tarball
 pushd _build && tar -zcf ${TARBALL_NAME} uc-agent-${VERSION}

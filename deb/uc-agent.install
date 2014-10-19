@@ -1,0 +1,4 @@
+node opt/uc-agent/
+node_modules opt/uc-agent/
+bin opt/uc-agent
+res/* /

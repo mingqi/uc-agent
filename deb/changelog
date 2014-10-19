@@ -1,19 +1,5 @@
-ma-agent (1.0.2-1) precise; urgency=low
-
-  * replace winston logger by log4js
-  * fix a bug: duplicate start plugin
-  * directly startup agent when upgrade
-
- --  <shaomq@monitorat.com>  Wed, 20 Aug 2014 00:00:00 +0000
-
-ma-agent (1.0.1-1) precise; urgency=low
-
-  * add ssl transport supported
-
- --  <shaomq@monitorat.com>  Wed, 20 Aug 2014 00:00:00 +0000
-
-ma-agent (1.0.0-1) precise; urgency=low
+uc-agent (1.0.0-1) precise; urgency=low
 
   * Initial release. 
 
- --  <shaomq@monitorat.com>  Thu, 07 Aug 2014 00:00:00 +0000
+ --  <mingqi@uclogs.com>  Thu, 07 Aug 2014 00:00:00 +0000

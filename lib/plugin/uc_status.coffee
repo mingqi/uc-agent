@@ -13,7 +13,7 @@ module.exports = (config) ->
   return {
     
     start : (emit, callback) ->
-      _interval_obj = setInterval () ->
+      _send_status = () ->
         emit
           tag: 'status'
           record:
@@ -21,8 +21,9 @@ module.exports = (config) ->
             hostname: os.hostname()
             version: VERSION
 
-      , _interval 
-      
+      _send_status()
+      _interval_obj = setInterval _send_status, _interval
+      logger.info "uc_status started"
       callback() 
 
     shutdown :  (callback) ->
