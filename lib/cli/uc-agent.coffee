@@ -236,7 +236,7 @@ main = () ->
 
   logging_opts = options.logging
   ## init logger
-  logger.setLevel(logging_opts.log_level || 'info')
+  log4js.setGlobalLogLevel(logging_opts.log_level || 'info')
   if logging_opts.log_file == 'console'
     log4js.addAppender(log4js.appenders.console() );
   else
