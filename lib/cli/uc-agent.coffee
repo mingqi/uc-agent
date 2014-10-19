@@ -151,6 +151,7 @@ _worker = (options) ->
     process.on 'uncaughtException', (err) ->
       logger.error "uc-agent got uncaughtException"
       logger.error err
+      logger.error err.stack
       _quit()
         
 
@@ -188,7 +189,9 @@ main = () ->
       refresh_interval: 10000
       save_posotion_interval: 10000
       max_size: 52428800
+      max_line_size: 5000
       buffer_size: 1048576
+      encoding : 'auto'
 
     supervisor: 
       watch_time: 3000
