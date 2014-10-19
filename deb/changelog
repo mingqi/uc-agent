@@ -1,3 +1,10 @@
+uc-agent (1.0.1-1) precise; urgency=low
+
+  * to limit length of line of log file. 
+  * ignore log file if it's not a regular file e.g. directory
+
+ --  <mingqi@uclogs.com>  Thu, 07 Aug 2014 00:00:00 +0000
+
 uc-agent (1.0.0-1) precise; urgency=low
 
   * Initial release. 
