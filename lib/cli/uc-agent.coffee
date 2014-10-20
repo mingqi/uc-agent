@@ -190,7 +190,7 @@ main = () ->
       save_posotion_interval: 10000
       max_size: 52428800
       max_line_size: 5000
-      buffer_size: 1048576
+      buffer_size: 0
       encoding : 'auto'
 
     supervisor: 
