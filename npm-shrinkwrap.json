@@ -1,7 +1,6 @@
 {
   "name": "uc-agent",
   "version": "0.0.1",
-  "from": "./npm",
   "dependencies": {
     "MD5": {
       "version": "1.2.1",
@@ -36,9 +35,8 @@
       "resolved": "https://registry.npmjs.org/extend/-/extend-2.0.0.tgz"
     },
     "findtime": {
-      "version": "0.0.1",
-      "from": "findtime@*",
-      "resolved": "https://registry.npmjs.org/findtime/-/findtime-0.0.1.tgz"
+      "version": "0.0.3",
+      "from": "findtime@*"
     },
     "hoconfig-js": {
       "version": "0.1.12",
@@ -53,9 +51,9 @@
       }
     },
     "human-format": {
-      "version": "0.1.4",
+      "version": "0.2.0",
       "from": "human-format@*",
-      "resolved": "https://registry.npmjs.org/human-format/-/human-format-0.1.4.tgz"
+      "resolved": "https://registry.npmjs.org/human-format/-/human-format-0.2.0.tgz"
     },
     "is-running": {
       "version": "1.0.5",
@@ -107,9 +105,8 @@
       }
     },
     "logcola": {
-      "version": "0.1.12",
+      "version": "0.1.13",
       "from": "logcola@*",
-      "resolved": "https://registry.npmjs.org/logcola/-/logcola-0.1.12.tgz",
       "dependencies": {
         "glob": {
           "version": "4.0.6",
@@ -173,9 +170,9 @@
                   "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.0.2.tgz",
                   "dependencies": {
                     "mime-db": {
-                      "version": "1.1.0",
+                      "version": "1.1.1",
                       "from": "mime-db@~1.1.0",
-                      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.1.0.tgz"
+                      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.1.1.tgz"
                     }
                   }
                 },
@@ -332,9 +329,9 @@
                   "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.0.2.tgz",
                   "dependencies": {
                     "mime-db": {
-                      "version": "1.1.0",
+                      "version": "1.1.1",
                       "from": "mime-db@~1.1.0",
-                      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.1.0.tgz"
+                      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.1.1.tgz"
                     }
                   }
                 }
