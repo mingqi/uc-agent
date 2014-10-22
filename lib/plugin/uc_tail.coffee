@@ -19,6 +19,8 @@ module.exports = (config) ->
   _tail.line = (file, line, callback) ->
     buff = _getBuff(file)
     if findtime(line) and buff.length > 0
+      console.log "mmmmmmmmmmmmm: #{line}"
+      console.log findtime(line)
       ## merge all message in buff to one line
       message = buff.map((item) -> item[1]).join('\n')
       callback null, {
