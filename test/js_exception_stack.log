@@ -1,0 +1,12 @@
+[2014-10-22 10:11:51.079] [INFO] log - [127.0.0.1] POST /admin/getcheckCourse HTTP/1.1 200 710 - 22 ms
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: Redis connection to redis.xxj.com:6379 failed - connect ECONNREFUSED
+    at RedisClient.on_error (/home/liuliang/wrok/xxj/node_modules/redis/index.js:185:24)
+    at Socket.<anonymous> (/home/liuliang/wrok/xxj/node_modules/redis/index.js:95:14)
+    at Socket.EventEmitter.emit (events.js:95:17)
+    at net.js:440:14
+    at process._tickCallback (node.js:415:13)
+error: Forever detected script exited with code: 8
+error: Script restart attempt #2
