@@ -75,6 +75,7 @@ mv _build/$NODE ${OPT_ROOT}/node
 coffee -c -o _build/npm/lib ./lib
 cp index.js ./_build/npm
 cp ./package.json ./_build/npm
+cp ./npm-shrinkwrap.json ./_build/npm
 
 rm -rf /tmp/npm /tmp/node_modules
 cp -r _build/npm /tmp/npm
