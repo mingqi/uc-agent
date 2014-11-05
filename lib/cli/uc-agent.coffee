@@ -150,8 +150,8 @@ _worker = (options) ->
 
     process.on 'uncaughtException', (err) ->
       logger.error "uc-agent got uncaughtException"
-      logger.error err
       logger.error err.stack
+      console.err err.stack
       _quit()
         
 

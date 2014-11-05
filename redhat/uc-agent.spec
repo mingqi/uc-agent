@@ -5,7 +5,7 @@
 
 Summary: uc-agent
 Name: uc-agent
-Version: 1.0.1
+Version: 1.0.2
 License: APL2
 Release: 1
 

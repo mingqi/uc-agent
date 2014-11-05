@@ -68,7 +68,7 @@ module.exports = (config) ->
   return {
     start : (emit, callback) ->
       _emit = emit
-      setInterval () ->
+      _interval_obj = setInterval () ->
         logger.debug "to cleanup tail multiple line buffer"
         _cleanup(false)
       , 1000
