@@ -48,7 +48,24 @@ rm -rf %{buildroot}
 %post
 echo "Configure uc-agent to start, when booting up the OS..."
 /sbin/chkconfig --add uc-agent
-if [ -f "/var/run/uc-agent/license_key" ]; then
+## make sure /var/uc-agent directory was created
+if [ -f "/var/uc-agent" ]; then
+	rm -rf /var/ucagent
+fi
+
+mkdir -p /var/uc-agent
+
+# migrate legacy run data to new location
+if [ -f "/var/run/uc-agent/license_key" ] && [ ! -f "/var/uc-agent/license_key" ]; then
+	mv /var/run/uc-agent/license_key /var/uc-agent/license_key
+fi
+if [ -f "/var/run/uc-agent/agent_id" ] && [ ! -f "/var/uc-agent/agent_id" ]; then
+	mv /var/run/uc-agent/agent_id /var/uc-agent/agent_id
+fi
+if [ -f "/var/run/uc-agent/posdb" ]; then
+	rm -rf /var/run/uc-agent/posdb
+fi
+if [ -f "/var/uc-agent/license_key" ]; then
   echo "to restart uc-agent ..."
   /etc/init.d/uc-agent restart
 fi

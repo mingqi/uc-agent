@@ -181,11 +181,11 @@ main = () ->
     config_refresh_interval: 30000 # 30 seconds
     status_interval : 10000 # 10 seconds
     debug : false
-    run_directory : '/var/run/uc-agent'
+    run_directory : '/var/uc-agent'
     log_config_file : '/etc/uc-agent/log_files.conf'
 
     tail : 
-      pos_file: '/var/run/uc-agent/posdb'
+      pos_file: '/var/uc-agent/posdb'
       refresh_interval: 10000
       save_posotion_interval: 10000
       max_size: 52428800

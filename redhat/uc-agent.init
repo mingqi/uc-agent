@@ -84,7 +84,7 @@ case "$1" in
         configtest
         ;;
     status)
-	status -p $PIDFILE 'td-agent'
+	status -p $PIDFILE 'uc-agent'
 	;;
     *)
 	echo "Usage: $prog {start|stop|restart|status}"

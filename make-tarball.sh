@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 set -e 
 
 VERSION=`cat VERSION`
@@ -79,7 +79,7 @@ cp ./npm-shrinkwrap.json ./_build/npm
 
 rm -rf /tmp/npm /tmp/node_modules
 cp -r _build/npm /tmp/npm
-pushd /tmp && npm install  ./npm
+pushd /tmp && npm install  ./npm -dd
 popd
 mv /tmp/node_modules ${OPT_ROOT}/
 # find ${OPT_ROOT}/node_modules -type f -exec chmod 644 {} +
